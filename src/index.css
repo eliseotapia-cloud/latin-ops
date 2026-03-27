@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #0F1117;
+    color: #F1F5F9;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #161B27; }
+  ::-webkit-scrollbar-thumb { background: #252D40; border-radius: 4px; }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-1 rounded-xl border border-white/5 p-5;
+  }
+  .stat-card {
+    @apply bg-surface-2 rounded-xl border border-white/5 p-5 flex flex-col gap-1;
+  }
+  .btn-primary {
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors;
+  }
+  .btn-ghost {
+    @apply text-slate-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg text-sm transition-colors;
+  }
+  .input {
+    @apply bg-surface-3 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-full transition-colors;
+  }
+  .badge-active {
+    @apply bg-emerald-500/15 text-emerald-400 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .badge-inactive {
+    @apply bg-red-500/15 text-red-400 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .badge-leave {
+    @apply bg-amber-500/15 text-amber-400 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+}

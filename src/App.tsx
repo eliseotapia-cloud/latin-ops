@@ -1,0 +1,154 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './auth/AuthProvider'
+import { ProtectedRoute } from './auth/ProtectedRoute'
+import { LoginPage } from './auth/LoginPage'
+import { AppLayout } from './components/layout/AppLayout'
+import { AdminDashboard } from './modules/dashboard/AdminDashboard'
+import { ManagerDashboard } from './modules/dashboard/ManagerDashboard'
+import { TeamPage } from './modules/team/TeamPage'
+import { EmployeeDetail } from './modules/team/EmployeeDetail'
+import { EmployeeForm } from './modules/team/EmployeeForm'
+import { SalariesPage } from './modules/salaries/SalariesPage'
+import { PerformancePage } from './modules/performance/PerformancePage'
+import { EvaluationForm } from './modules/performance/EvaluationForm'
+import { MiLegajoPage } from './modules/milegajo/MiLegajoPage'
+import { ImportPage } from './modules/team/ImportPage'
+import { useRole } from './hooks/useRole'
+
+function DashboardRouter() {
+  const { isAdmin } = useRole()
+  return isAdmin ? <AdminDashboard /> : <ManagerDashboard />
+}
+
+function TeamRouter() {
+  // Admin usa /equipo, Manager usa /mi-equipo — ambas renderizan TeamPage
+  return <TeamPage />
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* App con layout */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            {/* Dashboard — se adapta al rol */}
+            <Route path="/" element={<DashboardRouter />} />
+
+            {/* ADMIN: Equipo */}
+            <Route
+              path="/equipo"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <TeamRouter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/equipo/nuevo"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <EmployeeForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/equipo/importar"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <ImportPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/equipo/:id"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <EmployeeDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/equipo/:id/editar"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <EmployeeForm />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ADMIN: Sueldos */}
+            <Route
+              path="/sueldos"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <SalariesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* MANAGER: Mi Equipo */}
+            <Route
+              path="/mi-equipo"
+              element={
+                <ProtectedRoute allowedRoles={['area_manager']}>
+                  <TeamRouter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mi-equipo/nuevo"
+              element={
+                <ProtectedRoute allowedRoles={['area_manager']}>
+                  <EmployeeForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mi-equipo/:id"
+              element={
+                <ProtectedRoute allowedRoles={['area_manager']}>
+                  <EmployeeDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mi-equipo/:id/editar"
+              element={
+                <ProtectedRoute allowedRoles={['area_manager']}>
+                  <EmployeeForm />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* MANAGER: Mi Legajo */}
+            <Route
+              path="/mi-legajo"
+              element={
+                <ProtectedRoute allowedRoles={['area_manager']}>
+                  <MiLegajoPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Performance — ambos roles */}
+            <Route path="/performance" element={<PerformancePage />} />
+            <Route path="/performance/evaluar/:id" element={<EvaluationForm />} />
+            <Route path="/performance/empleado/:id" element={<EmployeeDetail />} />
+
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}

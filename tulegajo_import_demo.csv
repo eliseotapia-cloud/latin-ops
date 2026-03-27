@@ -1,0 +1,23 @@
+nombre,apellido,cuil,email_corporativo,area,puesto,fecha_ingreso,estado,sueldo_bruto,tu_legajo
+Segundo,Azcué,20-38291047-3,s.azcue@latinsecurities.ar,Banca Privada,Financial Advisor,01/01/2024,activo,2800000,TL-00891
+Valentina,Herrera,27-35102984-6,v.herrera@latinsecurities.ar,Banca Privada,Senior Advisor,15/03/2021,activo,4200000,TL-00445
+Tomás,Belgrano,20-40128374-9,t.belgrano@latinsecurities.ar,Banca Privada,Junior Advisor,01/06/2023,activo,1650000,TL-01102
+Nicolás,Ferreyra,20-34782910-5,n.ferreyra@latinsecurities.ar,Mesa,Head of Trading,10/02/2019,activo,6500000,TL-00231
+Lucía,Montoya,27-37291038-4,l.montoya@latinsecurities.ar,Mesa,Trader,01/08/2022,activo,3100000,TL-00778
+Agustín,Paz,20-41038291-7,a.paz@latinsecurities.ar,Mesa,Junior Trader,15/01/2024,activo,1800000,TL-01198
+Carolina,Vidal,27-33019284-2,c.vidal@latinsecurities.ar,Corporate,Corporate Manager,05/05/2018,activo,5800000,TL-00187
+Matías,Suárez,20-38201948-1,m.suarez@latinsecurities.ar,Corporate,Analyst,01/03/2022,activo,2400000,TL-00812
+Florencia,Ibáñez,27-39201847-5,f.ibanez@latinsecurities.ar,Back Office,Operations Manager,20/07/2020,activo,3800000,TL-00556
+Rodrigo,Casas,20-36019284-8,r.casas@latinsecurities.ar,Back Office,Operations Analyst,01/02/2023,activo,1950000,TL-00934
+Sofía,Ramos,27-34019284-3,s.ramos@latinsecurities.ar,Accounting,Chief Accountant,12/04/2017,activo,5200000,TL-00098
+Ignacio,Delgado,20-37201948-6,i.delgado@latinsecurities.ar,Accounting,Accountant Jr,01/09/2023,activo,1750000,TL-01045
+Mariana,Ortiz,27-35918273-1,m.ortiz@latinsecurities.ar,Compliance,Compliance Officer,08/11/2020,activo,4600000,TL-00623
+Sebastián,Torres,20-39201847-4,s.torres@latinsecurities.ar,Compliance,Analyst,15/04/2022,activo,2600000,TL-00867
+Alejandra,Giménez,27-32019284-7,a.gimenez@latinsecurities.ar,Central Management,COO,01/01/2016,activo,9500000,TL-00012
+Diego,Molina,20-33019284-0,d.molina@latinsecurities.ar,Recursos Humanos,HR Manager,10/06/2019,activo,4100000,TL-00334
+Camila,Ríos,27-40128374-2,c.rios@latinsecurities.ar,Recursos Humanos,HR Analyst,01/07/2023,activo,1850000,TL-01078
+Martín,Cabrera,20-36918273-9,m.cabrera@latinsecurities.ar,Finanzas Corporativas,CFO Assistant,22/08/2021,activo,3900000,TL-00701
+Paula,Navarro,27-38201948-8,p.navarro@latinsecurities.ar,Research,Research Analyst Sr,01/10/2020,activo,4800000,TL-00589
+Ezequiel,Paredes,20-41920384-5,e.paredes@latinsecurities.ar,Research,Research Analyst Jr,15/03/2024,activo,1900000,TL-01211
+Julieta,Acosta,27-36019284-6,j.acosta@latinsecurities.ar,Legales,Legal Counsel,03/03/2019,activo,5400000,TL-00278
+Federico,Morales,20-37918273-2,f.morales@latinsecurities.ar,Legales,Legal Analyst,01/11/2022,activo,2700000,TL-00923
