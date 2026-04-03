@@ -8,7 +8,7 @@ import { useDemoData } from '../../demo/demoData'
 const STORAGE_KEY = 'latin_comms_seen'
 
 function FloatingActions() {
-  const { isManager } = useRole()
+  const { isManager, isEmployee } = useRole()
   const demo = useDemoData()
   const location = useLocation()
 
@@ -24,7 +24,7 @@ function FloatingActions() {
     }
   }, [location.pathname])
 
-  if (!isManager) return null
+  if (!isManager && !isEmployee) return null
 
   const isOnComms = location.pathname === '/comunicaciones'
   const badgeCount = isOnComms ? 0 : unreadCount
