@@ -117,15 +117,8 @@ export default function App() {
               }
             />
 
-            {/* ADMIN + MANAGER: Comunicaciones */}
-            <Route
-              path="/comunicaciones"
-              element={
-                <ProtectedRoute allowedRoles={['super_admin', 'area_manager', 'empleado']}>
-                  <ComunicacionesPage />
-                </ProtectedRoute>
-              }
-            />
+            {/* Comunicaciones — todos los roles */}
+            <Route path="/comunicaciones" element={<ComunicacionesPage />} />
 
             {/* MANAGER: Mi Equipo + Sueldos (unificado) */}
             <Route
