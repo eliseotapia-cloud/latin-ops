@@ -28,7 +28,7 @@ function formatDate(iso: string) {
 
 export function ComunicacionesPage() {
   const demo = useDemoData()
-  const { isAdmin } = useRole()
+  const { isAdmin, isEmployee } = useRole()
 
   const [filterTipo, setFilterTipo] = useState<ComunicacionTipo | 'todos'>('todos')
   const [showForm, setShowForm] = useState(false)
@@ -49,6 +49,7 @@ export function ComunicacionesPage() {
   const allComms = [...demo.comunicaciones, ...localComms]
     .sort((a, b) => b.fecha_programada.localeCompare(a.fecha_programada))
     .filter((c) => filterTipo === 'todos' || c.tipo === filterTipo)
+    .filter((c) => isEmployee ? c.enviada : true)
 
   function resetForm() {
     setNewTipo('general')
@@ -85,7 +86,7 @@ export function ComunicacionesPage() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-white">Comunicaciones</h1>
-          <p className="text-slate-400 text-sm mt-1">Notificaciones programadas y enviadas al equipo</p>
+          <p className="text-slate-400 text-sm mt-1">{isEmployee ? 'Comunicaciones de RRHH y tu jefe de área' : 'Notificaciones programadas y enviadas al equipo'}</p>
         </div>
         {isAdmin && !showForm && (
           <button onClick={() => { resetForm(); setShowForm(true) }} className="btn-primary flex items-center gap-2 text-sm">

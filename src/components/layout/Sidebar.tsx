@@ -37,7 +37,6 @@ export function Sidebar() {
     { to: '/mi-sueldo', icon: DollarSign, label: 'Sueldo' },
     { to: '/mi-evaluacion', icon: BarChart2, label: 'Mi Evaluación' },
     { to: '/mi-calendario', icon: CalendarDays, label: 'Calendario' },
-    { to: '/sugerencias', icon: Lightbulb, label: 'Sugerencias' },
   ]
 
   const links = isAdmin ? adminLinks : isEmployee ? employeeLinks : managerLinks

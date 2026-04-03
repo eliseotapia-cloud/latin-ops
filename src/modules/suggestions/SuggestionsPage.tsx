@@ -11,13 +11,14 @@ const CATEGORIA_COLORS: Record<Categoria, string> = {
   procesos:    'bg-blue-500/15 text-blue-400 border-blue-500/25',
   cultura:     'bg-violet-500/15 text-violet-400 border-violet-500/25',
   herramientas:'bg-amber-500/15 text-amber-400 border-amber-500/25',
-  beneficios:  'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+  beneficios:  'bg-pink-500/15 text-pink-400 border-pink-500/25',
+  sin_costo:   'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
   otro:        'bg-slate-500/15 text-slate-400 border-slate-500/25',
 }
 
 const CATEGORIA_LABELS: Record<Categoria, string> = {
   procesos: 'Procesos', cultura: 'Cultura', herramientas: 'Herramientas',
-  beneficios: 'Beneficios', otro: 'Otro',
+  beneficios: 'Beneficios', sin_costo: '💡 Sin costo', otro: 'Otro',
 }
 
 const ESTADO_COLORS: Record<Estado, string> = {
@@ -47,7 +48,6 @@ export function SuggestionsPage() {
   const [titulo, setTitulo] = useState('')
   const [categoria, setCategoria] = useState<Categoria>('procesos')
   const [descripcion, setDescripcion] = useState('')
-  const [esAnonima, setEsAnonima] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Filters
@@ -66,7 +66,6 @@ export function SuggestionsPage() {
     setTitulo('')
     setDescripcion('')
     setCategoria('procesos')
-    setEsAnonima(false)
     setError(null)
     setFormStep(1)
     setReformulateHint(false)
@@ -166,15 +165,6 @@ export function SuggestionsPage() {
                   onChange={(e) => setDescripcion(e.target.value)}
                 />
               </div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={esAnonima}
-                  onChange={(e) => setEsAnonima(e.target.checked)}
-                  className="rounded"
-                />
-                <span className="text-sm text-slate-300">Enviar anónimamente</span>
-              </label>
               {error && (
                 <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
               )}
@@ -199,11 +189,6 @@ export function SuggestionsPage() {
                   <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${CATEGORIA_COLORS[categoria]}`}>
                     {CATEGORIA_LABELS[categoria]}
                   </span>
-                  {esAnonima && (
-                    <span className="text-xs px-2 py-0.5 rounded-full border bg-slate-500/15 text-slate-400 border-slate-500/25">
-                      Anónimo
-                    </span>
-                  )}
                 </div>
                 <h3 className="text-sm font-semibold text-white mb-1">{titulo}</h3>
                 <p className="text-sm text-slate-400">{descripcion}</p>

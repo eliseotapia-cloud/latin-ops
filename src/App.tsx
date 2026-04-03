@@ -121,7 +121,7 @@ export default function App() {
             <Route
               path="/comunicaciones"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'area_manager']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'area_manager', 'empleado']}>
                   <ComunicacionesPage />
                 </ProtectedRoute>
               }

@@ -179,7 +179,7 @@ export interface Suggestion {
   id: string
   autor_nombre: string | null
   area_nombre: string | null
-  categoria: 'procesos' | 'cultura' | 'herramientas' | 'beneficios' | 'otro'
+  categoria: 'procesos' | 'cultura' | 'herramientas' | 'beneficios' | 'sin_costo' | 'otro'
   titulo: string
   descripcion: string
   es_anonima: boolean

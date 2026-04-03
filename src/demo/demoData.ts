@@ -295,9 +295,9 @@ export const DEMO_PABLO_WELLBEING: Wellbeing = {
 // ─── Sugerencias ───────────────────────────────────────────────────────────
 
 export const DEMO_SUGGESTIONS: Suggestion[] = [
-  { id: 'sug-001', autor_nombre: 'Valentina Gómez', area_nombre: 'Banca Privada', categoria: 'herramientas', titulo: 'Acceso a Bloomberg Terminal', descripcion: 'Necesitamos acceso completo a Bloomberg para agilizar el análisis de carteras y dejar de depender de pantallazos.', es_anonima: false, estado: 'en_revision', created_at: '2026-03-10T00:00:00Z' },
-  { id: 'sug-002', autor_nombre: null, area_nombre: null, categoria: 'cultura', titulo: 'Trabajo remoto 1 día por semana', descripcion: 'Propongo implementar un día de trabajo remoto semanal. Mejoraría el balance vida-trabajo sin afectar la productividad.', es_anonima: true, estado: 'nueva', created_at: '2026-03-15T00:00:00Z' },
-  { id: 'sug-003', autor_nombre: 'Roberto Sánchez', area_nombre: 'Middle Office', categoria: 'procesos', titulo: 'Simplificar aprobación de operaciones', descripcion: 'El proceso actual requiere 4 firmas para operaciones menores a USD 10.000. Propongo reducir a 2 para agilizar el flujo.', es_anonima: false, estado: 'nueva', created_at: '2026-03-20T00:00:00Z' },
+  { id: 'sug-001', autor_nombre: 'Valentina Gómez', area_nombre: 'Banca Privada', categoria: 'sin_costo', titulo: 'Reunión semanal de 15 min entre áreas', descripcion: 'Una llamada corta semanal entre Banca Privada y Middle Office mejoraría la coordinación sin necesidad de inversión adicional.', es_anonima: false, estado: 'implementada', created_at: '2026-03-10T00:00:00Z' },
+  { id: 'sug-002', autor_nombre: 'Roberto Sánchez', area_nombre: 'Middle Office', categoria: 'procesos', titulo: 'Simplificar aprobación de operaciones', descripcion: 'El proceso actual requiere 4 firmas para operaciones menores a USD 10.000. Propongo reducir a 2 para agilizar el flujo.', es_anonima: false, estado: 'en_revision', created_at: '2026-03-20T00:00:00Z' },
+  { id: 'sug-003', autor_nombre: 'Pablo Rodríguez', area_nombre: 'Banca Privada', categoria: 'sin_costo', titulo: 'Compartir casos de éxito entre el equipo', descripcion: 'Dedicar 10 minutos en el team meeting mensual para que cada uno comparta un aprendizaje o logro del período. Fortalece la cultura sin ningún costo.', es_anonima: false, estado: 'nueva', created_at: '2026-03-25T00:00:00Z' },
 ]
 
 // ─── Licencias ─────────────────────────────────────────────────────────────
