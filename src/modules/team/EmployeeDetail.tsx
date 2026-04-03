@@ -4,16 +4,15 @@ import { ArrowLeft, Eye, EyeOff, Edit2, ExternalLink } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useRole } from '../../hooks/useRole'
 import type { Employee, Salary, Evaluation } from '../../types'
+import { LEVEL_LABELS, LEVEL_COLORS, RESULT_LABELS, RESULT_COLORS, calcScore, trimLabel } from '../../types'
 
-const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
-const EVAL_LABELS = ['productividad','calidad','compromiso','autonomia','trabajo_equipo'] as const
-const EVAL_NAMES: Record<string, string> = {
-  productividad: 'Productividad',
-  calidad: 'Calidad',
-  compromiso: 'Compromiso',
-  autonomia: 'Autonomía',
-  trabajo_equipo: 'Trabajo en equipo',
-}
+const EVAL_CATEGORIES = [
+  { key: 'productividad' as const, label: 'Productividad' },
+  { key: 'calidad' as const,       label: 'Calidad' },
+  { key: 'compromiso' as const,    label: 'Compromiso' },
+  { key: 'autonomia' as const,     label: 'Autonomía' },
+  { key: 'trabajo_equipo' as const, label: 'Trabajo en equipo' },
+]
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n)
@@ -41,9 +40,9 @@ export function EmployeeDetail() {
       supabase.from('empleados').select('*, areas(nombre)').eq('id', empId).single(),
       supabase.from('sueldos').select('*').eq('empleado_id', empId).is('fecha_hasta', null).single(),
       supabase.from('evaluaciones').select('*').eq('empleado_id', empId)
-        .order('periodo_anio', { ascending: false })
-        .order('periodo_mes', { ascending: false })
-        .limit(12),
+        .order('anio', { ascending: false })
+        .order('trimestre', { ascending: false })
+        .limit(8),
     ])
     setEmployee(emp as any)
     setSalary(sal)
@@ -117,36 +116,35 @@ export function EmployeeDetail() {
           )}
         </div>
 
-        {/* Performance último mes */}
+        {/* Última evaluación */}
         <div className="card">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-white">Última evaluación</h2>
             {lastEval && (
               <span className="text-xs text-slate-500">
-                {MONTHS[lastEval.periodo_mes - 1]} {lastEval.periodo_anio}
+                {trimLabel(lastEval.trimestre, lastEval.anio)}
               </span>
             )}
           </div>
           {lastEval ? (
             <div>
-              <p className="text-2xl font-semibold text-white">{lastEval.score_general.toFixed(1)} / 5</p>
-              <div className="flex flex-col gap-1 mt-3">
-                {EVAL_LABELS.map((key) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500 w-28">{EVAL_NAMES[key]}</span>
-                    <div className="flex gap-0.5">
-                      {[1,2,3,4,5].map((n) => (
-                        <div
-                          key={n}
-                          className={`w-3 h-1.5 rounded-full ${
-                            n <= (lastEval as any)[key] ? 'bg-brand-500' : 'bg-white/10'
-                          }`}
-                        />
-                      ))}
+              <div className="mb-3">
+                <span className={`text-sm px-3 py-1 rounded-full border font-semibold ${RESULT_COLORS[lastEval.resultado]}`}>
+                  {RESULT_LABELS[lastEval.resultado]}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {EVAL_CATEGORIES.map(({ key, label }) => {
+                  const lvl = lastEval[key]
+                  return (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500 w-28">{label}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${LEVEL_COLORS[lvl]}`}>
+                        {LEVEL_LABELS[lvl]}
+                      </span>
                     </div>
-                    <span className="text-xs text-slate-400">{(lastEval as any)[key]}</span>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
               {lastEval.comentarios && (
                 <p className="text-xs text-slate-400 mt-3 italic">"{lastEval.comentarios}"</p>
@@ -163,31 +161,31 @@ export function EmployeeDetail() {
         <div className="card">
           <h2 className="text-sm font-semibold text-white mb-4">Historial de performance</h2>
           <div className="flex flex-col divide-y divide-white/5">
-            {evaluations.map((ev) => (
-              <div key={ev.id} className="flex items-center gap-4 py-3">
-                <span className="text-xs text-slate-500 w-16">
-                  {MONTHS[ev.periodo_mes - 1]} {ev.periodo_anio}
-                </span>
-                <ScoreBar score={ev.score_general} />
-                <span className="text-sm font-medium text-white w-10">{ev.score_general.toFixed(1)}</span>
-                {ev.comentarios && (
-                  <span className="text-xs text-slate-500 flex-1 truncate italic">"{ev.comentarios}"</span>
-                )}
-              </div>
-            ))}
+            {evaluations.map((ev) => {
+              const score = calcScore(ev)
+              return (
+                <div key={ev.id} className="flex items-center gap-4 py-3">
+                  <span className="text-xs text-slate-500 w-16">
+                    {trimLabel(ev.trimestre, ev.anio)}
+                  </span>
+                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden max-w-32">
+                    <div
+                      className={`h-full rounded-full ${score >= 3.6 ? 'bg-emerald-500' : score >= 3.0 ? 'bg-brand-500' : score >= 2.4 ? 'bg-amber-500' : 'bg-red-500'}`}
+                      style={{ width: `${(score / 4) * 100}%` }}
+                    />
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${RESULT_COLORS[ev.resultado]}`}>
+                    {RESULT_LABELS[ev.resultado]}
+                  </span>
+                  {ev.comentarios && (
+                    <span className="text-xs text-slate-500 flex-1 truncate italic">"{ev.comentarios}"</span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-function ScoreBar({ score }: { score: number }) {
-  const pct = (score / 5) * 100
-  const color = score >= 4 ? 'bg-emerald-500' : score >= 3 ? 'bg-amber-500' : 'bg-red-500'
-  return (
-    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden max-w-32">
-      <div className={`h-full ${color} rounded-full`} style={{ width: `${pct}%` }} />
     </div>
   )
 }

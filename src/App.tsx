@@ -5,7 +5,12 @@ import { LoginPage } from './auth/LoginPage'
 import { AppLayout } from './components/layout/AppLayout'
 import { AdminDashboard } from './modules/dashboard/AdminDashboard'
 import { ManagerDashboard } from './modules/dashboard/ManagerDashboard'
+import { EmployeeDashboard } from './modules/employee/EmployeeDashboard'
+import { SalaryHistoryPage } from './modules/employee/SalaryHistoryPage'
+import { SelfEvaluationPage } from './modules/employee/SelfEvaluationPage'
+import { SuggestionsPage } from './modules/suggestions/SuggestionsPage'
 import { TeamPage } from './modules/team/TeamPage'
+import { EquipoSueldosPage } from './modules/team/EquipoSueldosPage'
 import { EmployeeDetail } from './modules/team/EmployeeDetail'
 import { EmployeeForm } from './modules/team/EmployeeForm'
 import { SalariesPage } from './modules/salaries/SalariesPage'
@@ -13,11 +18,18 @@ import { PerformancePage } from './modules/performance/PerformancePage'
 import { EvaluationForm } from './modules/performance/EvaluationForm'
 import { MiLegajoPage } from './modules/milegajo/MiLegajoPage'
 import { ImportPage } from './modules/team/ImportPage'
+import { ComunicacionesPage } from './modules/comunicaciones/ComunicacionesPage'
+import { CalendarioPage } from './modules/calendario/CalendarioPage'
+import { CalendarioAdminPage } from './modules/calendario/CalendarioAdminPage'
+import { MiCalendarioPage } from './modules/employee/MiCalendarioPage'
+import { PresentacionesPage } from './modules/presentaciones/PresentacionesPage'
 import { useRole } from './hooks/useRole'
 
 function DashboardRouter() {
-  const { isAdmin } = useRole()
-  return isAdmin ? <AdminDashboard /> : <ManagerDashboard />
+  const { isAdmin, isEmployee } = useRole()
+  if (isAdmin) return <AdminDashboard />
+  if (isEmployee) return <EmployeeDashboard />
+  return <ManagerDashboard />
 }
 
 function TeamRouter() {
@@ -95,12 +107,32 @@ export default function App() {
               }
             />
 
-            {/* MANAGER: Mi Equipo */}
+            {/* ADMIN: Calendario */}
+            <Route
+              path="/calendario"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <CalendarioAdminPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ADMIN + MANAGER: Comunicaciones */}
+            <Route
+              path="/comunicaciones"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'area_manager']}>
+                  <ComunicacionesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* MANAGER: Mi Equipo + Sueldos (unificado) */}
             <Route
               path="/mi-equipo"
               element={
                 <ProtectedRoute allowedRoles={['area_manager']}>
-                  <TeamRouter />
+                  <EquipoSueldosPage />
                 </ProtectedRoute>
               }
             />
@@ -139,10 +171,61 @@ export default function App() {
               }
             />
 
+            {/* MANAGER: Calendario de licencias */}
+            <Route
+              path="/calendario"
+              element={
+                <ProtectedRoute allowedRoles={['area_manager']}>
+                  <CalendarioPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* MANAGER: Presentaciones */}
+            <Route
+              path="/presentaciones"
+              element={
+                <ProtectedRoute allowedRoles={['area_manager']}>
+                  <PresentacionesPage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Performance — ambos roles */}
             <Route path="/performance" element={<PerformancePage />} />
             <Route path="/performance/evaluar/:id" element={<EvaluationForm />} />
             <Route path="/performance/empleado/:id" element={<EmployeeDetail />} />
+
+            {/* EMPLOYEE: Calendario */}
+            <Route
+              path="/mi-calendario"
+              element={
+                <ProtectedRoute allowedRoles={['empleado']}>
+                  <MiCalendarioPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* EMPLOYEE routes */}
+            <Route
+              path="/mi-sueldo"
+              element={
+                <ProtectedRoute allowedRoles={['empleado']}>
+                  <SalaryHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mi-evaluacion"
+              element={
+                <ProtectedRoute allowedRoles={['empleado']}>
+                  <SelfEvaluationPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Shared route (all roles) */}
+            <Route path="/sugerencias" element={<SuggestionsPage />} />
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />

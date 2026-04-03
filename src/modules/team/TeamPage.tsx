@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom'
 import { Plus, Search, Upload } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useRole } from '../../hooks/useRole'
+import { useDemoData } from '../../demo/demoData'
 import type { Employee, Area } from '../../types'
 
 export function TeamPage() {
   const { isAdmin, areaId } = useRole()
+  const demo = useDemoData()
   const [employees, setEmployees] = useState<Employee[]>([])
   const [areas, setAreas] = useState<Area[]>([])
   const [search, setSearch] = useState('')
@@ -20,6 +22,13 @@ export function TeamPage() {
 
   async function loadData() {
     setLoading(true)
+    if (demo) {
+      setEmployees((isAdmin ? demo.allEmployees : demo.employees) as any)
+      if (isAdmin) setAreas(demo.areas)
+      setLoading(false)
+      return
+    }
+
     let query = supabase
       .from('empleados')
       .select('*, areas(id, nombre)')

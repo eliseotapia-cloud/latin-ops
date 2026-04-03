@@ -1,32 +1,47 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, DollarSign, BarChart2,
-  FileText, Settings, LogOut, Briefcase, Link
+  FileText, Settings, LogOut, Briefcase, Link,
+  Lightbulb, Bell, CalendarDays, Presentation, Home,
 } from 'lucide-react'
 import { useRole } from '../../hooks/useRole'
 import { useAuthStore } from '../../store/authStore'
 
 export function Sidebar() {
-  const { isAdmin, user } = useRole()
+  const { isAdmin, isEmployee, user } = useRole()
   const signOut = useAuthStore((s) => s.signOut)
 
   const adminLinks = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/equipo', icon: Users, label: 'Equipo' },
     { to: '/sueldos', icon: DollarSign, label: 'Sueldos' },
+    { to: '/comunicaciones', icon: Bell, label: 'Comunicaciones' },
     { to: '/performance', icon: BarChart2, label: 'Performance' },
+    { to: '/calendario', icon: CalendarDays, label: 'Calendario' },
+    { to: '/sugerencias', icon: Lightbulb, label: 'Sugerencias' },
     { to: '/reportes', icon: FileText, label: 'Reportes' },
     { to: '/configuracion', icon: Settings, label: 'Configuración' },
   ]
 
   const managerLinks = [
-    { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/', icon: Home, label: 'Home' },
     { to: '/mi-equipo', icon: Briefcase, label: 'Mi Equipo' },
+    { to: '/calendario', icon: CalendarDays, label: 'Calendario' },
     { to: '/performance', icon: BarChart2, label: 'Performance' },
+    { to: '/presentaciones', icon: Presentation, label: 'Presentaciones' },
     { to: '/mi-legajo', icon: Link, label: 'Mi Legajo' },
   ]
 
-  const links = isAdmin ? adminLinks : managerLinks
+  const employeeLinks = [
+    { to: '/', icon: Home, label: 'Home' },
+    { to: '/mi-sueldo', icon: DollarSign, label: 'Sueldo' },
+    { to: '/mi-evaluacion', icon: BarChart2, label: 'Mi Evaluación' },
+    { to: '/mi-calendario', icon: CalendarDays, label: 'Calendario' },
+    { to: '/sugerencias', icon: Lightbulb, label: 'Sugerencias' },
+  ]
+
+  const links = isAdmin ? adminLinks : isEmployee ? employeeLinks : managerLinks
+  const subtitle = isAdmin ? 'Central Management' : isEmployee ? 'Empleado' : 'Jefe de Área'
 
   return (
     <aside className="w-56 min-h-screen bg-surface-1 border-r border-white/5 flex flex-col">
@@ -38,7 +53,7 @@ export function Sidebar() {
           </div>
           <div>
             <p className="text-white font-semibold text-sm leading-none">LATIN Ops</p>
-            <p className="text-slate-500 text-xs mt-0.5">{isAdmin ? 'Admin' : 'Jefe de Área'}</p>
+            <p className="text-slate-500 text-xs mt-0.5">{subtitle}</p>
           </div>
         </div>
       </div>

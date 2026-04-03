@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Upload, CheckCircle, XCircle, AlertTriangle, FileText, Loader } from 'lucide-react'
+import { ArrowLeft, Upload, CheckCircle, XCircle, AlertTriangle, Loader } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useDemoData } from '../../demo/demoData'
 
 interface ParsedRow {
   nombre: string
@@ -56,6 +57,7 @@ function parseDateArg(str: string): string {
 
 export function ImportPage() {
   const navigate = useNavigate()
+  const demo = useDemoData()
   const fileRef = useRef<HTMLInputElement>(null)
   const [rows, setRows] = useState<ParsedRow[]>([])
   const [status, setStatus] = useState<ImportStatus>('idle')
@@ -67,9 +69,13 @@ export function ImportPage() {
     const text = await file.text()
     const parsed = parseCSV(text)
 
-    // Cargar áreas para mapear nombres → ids
-    const { data: areas } = await supabase.from('areas').select('id, nombre')
-    const areaMap = new Map((areas ?? []).map((a: any) => [a.nombre.toLowerCase().trim(), a.id]))
+    let areaMap: Map<string, string>
+    if (demo) {
+      areaMap = new Map(demo.areas.map((a) => [a.nombre.toLowerCase().trim(), a.id]))
+    } else {
+      const { data: areas } = await supabase.from('areas').select('id, nombre')
+      areaMap = new Map((areas ?? []).map((a: any) => [a.nombre.toLowerCase().trim(), a.id]))
+    }
 
     const validated = parsed.map((row) => {
       const areaId = areaMap.get(row.area.toLowerCase().trim())
@@ -101,14 +107,25 @@ export function ImportPage() {
   async function handleImport() {
     setStatus('importing')
     setProgress(0)
+    const validRows = rows.filter((r) => !r._error)
+
+    if (demo) {
+      // Modo demo: simular progreso sin persistir
+      for (let i = 0; i < validRows.length; i++) {
+        await new Promise((res) => setTimeout(res, 300))
+        setProgress(Math.round(((i + 1) / validRows.length) * 100))
+      }
+      setResults({ ok: validRows.length, errors: [] })
+      setStatus('done')
+      return
+    }
+
     const errors: string[] = []
     let ok = 0
-    const validRows = rows.filter((r) => !r._error)
 
     for (let i = 0; i < validRows.length; i++) {
       const row = validRows[i]
       try {
-        // Insertar empleado
         const { data: emp, error: empErr } = await supabase
           .from('empleados')
           .insert({
@@ -130,7 +147,6 @@ export function ImportPage() {
           continue
         }
 
-        // Insertar sueldo si existe
         if (row.sueldo_bruto > 0) {
           await supabase.from('sueldos').insert({
             empleado_id: emp.id,
@@ -142,7 +158,7 @@ export function ImportPage() {
         }
 
         ok++
-      } catch (err: any) {
+      } catch {
         errors.push(`${row.nombre} ${row.apellido}: Error inesperado`)
       }
 
@@ -169,6 +185,14 @@ export function ImportPage() {
           Subí el CSV exportado desde Tu Legajo para cargar empleados y sueldos automáticamente.
         </p>
       </div>
+
+      {/* Banner demo */}
+      {demo && (
+        <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-2.5 mb-5 text-amber-400 text-sm">
+          <AlertTriangle size={15} className="shrink-0" />
+          Modo demo — la importación se simulará sin guardar datos reales.
+        </div>
+      )}
 
       {/* Info columnas esperadas */}
       {status === 'idle' && (

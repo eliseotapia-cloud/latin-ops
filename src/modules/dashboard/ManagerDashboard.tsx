@@ -1,22 +1,31 @@
 import { useEffect, useState } from 'react'
-import { Users, BarChart2, AlertTriangle } from 'lucide-react'
+import { Users, BarChart2, AlertTriangle, DollarSign, Eye, EyeOff } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useRole } from '../../hooks/useRole'
+import { useDemoData } from '../../demo/demoData'
 import type { Employee } from '../../types'
+import { currentTrimestre, trimLabel } from '../../types'
 
-const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+function formatCurrency(n: number) {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n)
+}
 
 export function ManagerDashboard() {
   const { areaId, user } = useRole()
+  const demo = useDemoData()
   const [employees, setEmployees] = useState<Employee[]>([])
   const [pendingEvals, setPendingEvals] = useState<Employee[]>([])
-  const [teamScore, setTeamScore] = useState<number | null>(null)
+  const [highPerformers, setHighPerformers] = useState<number>(0)
+  const [topPerformers, setTopPerformers] = useState<number>(0)
+  const [masaSalarial, setMasaSalarial] = useState<number | null>(null)
+  const [showAmounts, setShowAmounts] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const now = new Date()
-  const mes = now.getMonth() + 1
+  const trimestre = currentTrimestre()
   const anio = now.getFullYear()
+  const periodoLabel = trimLabel(trimestre, anio)
 
   useEffect(() => {
     if (areaId) loadData()
@@ -25,6 +34,23 @@ export function ManagerDashboard() {
   async function loadData() {
     setLoading(true)
     try {
+      if (demo) {
+        const emps = [...demo.employees].sort((a, b) => a.apellido.localeCompare(b.apellido))
+        setEmployees(emps)
+        const pending = emps.filter((e) => !demo.evaluations.has(e.id))
+        setPendingEvals(pending)
+        const evals = Array.from(demo.evaluations.values()).filter((ev) => {
+          return emps.some((e) => e.id === ev.empleado_id)
+        })
+        const high = evals.filter((ev) => ev.resultado === 'high_performer').length
+        const top = evals.filter((ev) => ev.resultado === 'top_performer').length
+        setHighPerformers(high)
+        setTopPerformers(top)
+        const areaSummary = demo.admin.areas.find((a) => a.area_id === areaId)
+        setMasaSalarial(areaSummary?.masa_salarial ?? null)
+        return
+      }
+
       const { data: emps } = await supabase
         .from('empleados')
         .select('*')
@@ -36,21 +62,29 @@ export function ManagerDashboard() {
 
       setEmployees(emps)
 
-      // Evaluaciones del mes actual
       const { data: evals } = await supabase
         .from('evaluaciones')
-        .select('empleado_id, score_general')
-        .eq('periodo_mes', mes)
-        .eq('periodo_anio', anio)
+        .select('empleado_id, resultado, productividad, calidad, compromiso, autonomia, trabajo_equipo')
+        .eq('trimestre', trimestre)
+        .eq('anio', anio)
         .in('empleado_id', emps.map((e) => e.id))
 
-      const evalMap = new Map((evals ?? []).map((e: any) => [e.empleado_id, e.score_general]))
+      const evalMap = new Map((evals ?? []).map((e: any) => [e.empleado_id, e]))
 
       const pending = emps.filter((e) => !evalMap.has(e.id))
       setPendingEvals(pending)
 
-      const scores = Array.from(evalMap.values()) as number[]
-      setTeamScore(scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null)
+      const evalList = Array.from(evalMap.values()) as any[]
+      setHighPerformers(evalList.filter((ev) => ev.resultado === 'high_performer').length)
+      setTopPerformers(evalList.filter((ev) => ev.resultado === 'top_performer').length)
+
+      const { data: salaries } = await supabase
+        .from('sueldos')
+        .select('monto_bruto, empleado_id')
+        .is('fecha_hasta', null)
+        .in('empleado_id', emps.map((e) => e.id))
+
+      setMasaSalarial(salaries?.reduce((s, r) => s + r.monto_bruto, 0) ?? 0)
     } finally {
       setLoading(false)
     }
@@ -65,12 +99,12 @@ export function ManagerDashboard() {
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-white">Buen día, {nombre}.</h1>
         <p className="text-slate-400 text-sm mt-1">
-          Área: <span className="text-white">{user?.area_nombre}</span> — {MONTHS[now.getMonth()]} {anio}
+          Área: <span className="text-white">{user?.area_nombre}</span> — {periodoLabel}
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
             <Users size={16} className="text-brand-500" />
@@ -79,14 +113,37 @@ export function ManagerDashboard() {
           <p className="text-2xl font-semibold text-white">{employees.length}</p>
         </div>
         <div className="stat-card">
-          <div className="flex items-center gap-2 mb-2">
-            <BarChart2 size={16} className="text-violet-400" />
-            <span className="text-xs text-slate-400">Score del equipo</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <DollarSign size={16} className="text-emerald-400" />
+              <span className="text-xs text-slate-400">Masa salarial bruta</span>
+            </div>
+            <button
+              onClick={() => setShowAmounts((v) => !v)}
+              className="text-slate-500 hover:text-slate-300 transition-colors"
+              title={showAmounts ? 'Ocultar' : 'Mostrar monto'}
+            >
+              {showAmounts ? <EyeOff size={13} /> : <Eye size={13} />}
+            </button>
           </div>
           <p className="text-2xl font-semibold text-white">
-            {teamScore ? `${teamScore.toFixed(1)} / 5` : '—'}
+            {masaSalarial !== null
+              ? showAmounts ? formatCurrency(masaSalarial) : '$ ••••••••'
+              : '—'}
           </p>
-          <p className="text-xs text-slate-500">{MONTHS[now.getMonth()]} {anio}</p>
+          <p className="text-xs text-slate-500">Sueldos vigentes</p>
+        </div>
+        <div className="stat-card">
+          <div className="flex items-center gap-2 mb-2">
+            <BarChart2 size={16} className="text-violet-400" />
+            <span className="text-xs text-slate-400">Performance {periodoLabel}</span>
+          </div>
+          <p className="text-2xl font-semibold text-white">
+            {topPerformers + highPerformers > 0 ? `${topPerformers + highPerformers}` : '—'}
+          </p>
+          <p className="text-xs text-slate-500">
+            {topPerformers > 0 ? `${topPerformers} Top · ` : ''}{highPerformers > 0 ? `${highPerformers} High` : 'High o Top Performers'}
+          </p>
         </div>
       </div>
 
@@ -96,7 +153,7 @@ export function ManagerDashboard() {
           <AlertTriangle size={18} className="text-amber-400 mt-0.5 shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-amber-300">
-              {pendingEvals.length} {pendingEvals.length === 1 ? 'empleado sin evaluar' : 'empleados sin evaluar'} este mes
+              {pendingEvals.length} {pendingEvals.length === 1 ? 'empleado sin evaluar' : 'empleados sin evaluar'} en {periodoLabel}
             </p>
             <p className="text-xs text-amber-400/70 mt-0.5">
               {pendingEvals.map((e) => `${e.nombre} ${e.apellido}`).join(', ')}

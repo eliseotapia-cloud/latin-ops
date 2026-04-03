@@ -7,7 +7,9 @@ export function useRole() {
     role: user?.rol ?? null,
     isAdmin: user?.rol === 'super_admin',
     isManager: user?.rol === 'area_manager',
+    isEmployee: user?.rol === 'empleado',
     areaId: user?.area_id ?? null,
+    empleadoId: user?.empleado_id ?? null,
     user,
   }
 }

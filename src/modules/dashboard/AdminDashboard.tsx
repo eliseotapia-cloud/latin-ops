@@ -1,23 +1,25 @@
 import { useEffect, useState } from 'react'
 import { Users, DollarSign, TrendingUp, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import type { AreaCostSummary } from '../../types'
-
-const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+import { useDemoData } from '../../demo/demoData'
+import type { AreaCostSummary, PerformanceResult } from '../../types'
+import { RESULT_LABELS, RESULT_COLORS, currentTrimestre, trimLabel } from '../../types'
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n)
 }
 
 export function AdminDashboard() {
+  const demo = useDemoData()
   const [stats, setStats] = useState({ empleados: 0, masaSalarial: 0, scorePromedio: 0 })
   const [areas, setAreas] = useState<AreaCostSummary[]>([])
   const [topPerformers, setTopPerformers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   const now = new Date()
-  const monthName = MONTHS[now.getMonth()]
-  const year = now.getFullYear()
+  const trimestre = currentTrimestre()
+  const anio = now.getFullYear()
+  const periodoLabel = trimLabel(trimestre, anio)
 
   useEffect(() => {
     loadData()
@@ -26,6 +28,12 @@ export function AdminDashboard() {
   async function loadData() {
     setLoading(true)
     try {
+      if (demo) {
+        setStats(demo.admin.stats)
+        setAreas(demo.admin.areas)
+        setTopPerformers(demo.admin.topPerformers)
+        return
+      }
       // Empleados activos
       const { count: empCount } = await supabase
         .from('empleados')
@@ -40,25 +48,12 @@ export function AdminDashboard() {
 
       const masaSalarial = salaries?.reduce((s, r) => s + r.monto_bruto, 0) ?? 0
 
-      // Score promedio del mes
-      const { data: evals } = await supabase
-        .from('evaluaciones')
-        .select('score_general')
-        .eq('periodo_mes', now.getMonth() + 1)
-        .eq('periodo_anio', year)
-
-      const scores = evals?.map((e) => e.score_general) ?? []
-      const scorePromedio = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
-
-      setStats({ empleados: empCount ?? 0, masaSalarial, scorePromedio })
+      setStats({ empleados: empCount ?? 0, masaSalarial, scorePromedio: 0 })
 
       // Costos por área
       const { data: areasData } = await supabase
         .from('areas')
-        .select(`
-          id, nombre,
-          empleados(id, estado, sueldos(monto_bruto, fecha_hasta))
-        `)
+        .select(`id, nombre, empleados(id, estado, sueldos(monto_bruto, fecha_hasta))`)
 
       if (areasData) {
         const summary: AreaCostSummary[] = areasData.map((a: any) => {
@@ -78,13 +73,13 @@ export function AdminDashboard() {
         setAreas(summary)
       }
 
-      // Top performers del mes
+      // Top performers del trimestre
       const { data: topData } = await supabase
         .from('evaluaciones')
-        .select('score_general, empleados(nombre, apellido, puesto, areas(nombre))')
-        .eq('periodo_mes', now.getMonth() + 1)
-        .eq('periodo_anio', year)
-        .order('score_general', { ascending: false })
+        .select('resultado, empleados(nombre, apellido, puesto, areas(nombre))')
+        .eq('trimestre', trimestre)
+        .eq('anio', anio)
+        .in('resultado', ['top_performer', 'high_performer'])
         .limit(5)
 
       setTopPerformers(topData ?? [])
@@ -104,7 +99,7 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-white">Dashboard</h1>
-        <p className="text-slate-400 text-sm mt-1">{monthName} {year} — Vista ejecutiva</p>
+        <p className="text-slate-400 text-sm mt-1">{periodoLabel} — Vista ejecutiva</p>
       </div>
 
       {/* Stats */}
@@ -122,9 +117,9 @@ export function AdminDashboard() {
         />
         <StatCard
           icon={<TrendingUp size={18} className="text-violet-400" />}
-          label="Performance promedio"
-          value={stats.scorePromedio ? `${stats.scorePromedio.toFixed(1)} / 5` : '—'}
-          sub={`${MONTHS[now.getMonth()]} ${year}`}
+          label="Score promedio Q1"
+          value={stats.scorePromedio ? `${stats.scorePromedio.toFixed(1)} / 4` : '—'}
+          sub={periodoLabel}
         />
       </div>
 
@@ -162,10 +157,10 @@ export function AdminDashboard() {
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-white">Top Performance</h2>
-            <span className="text-xs text-slate-500">{MONTHS[now.getMonth()]} {year}</span>
+            <span className="text-xs text-slate-500">{periodoLabel}</span>
           </div>
           {topPerformers.length === 0 ? (
-            <EmptyState text="Sin evaluaciones este mes" />
+            <EmptyState text="Sin evaluaciones este trimestre" />
           ) : (
             <div className="flex flex-col gap-3">
               {topPerformers.map((t, i) => (
@@ -177,7 +172,7 @@ export function AdminDashboard() {
                     </p>
                     <p className="text-xs text-slate-500">{t.empleados?.areas?.nombre}</p>
                   </div>
-                  <ScoreBadge score={t.score_general} />
+                  <ResultBadge resultado={t.resultado as PerformanceResult} />
                 </div>
               ))}
             </div>
@@ -201,9 +196,12 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
   )
 }
 
-function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 4.5 ? 'text-emerald-400' : score >= 3.5 ? 'text-amber-400' : 'text-red-400'
-  return <span className={`text-sm font-semibold ${color}`}>{score.toFixed(1)}</span>
+export function ResultBadge({ resultado }: { resultado: PerformanceResult }) {
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${RESULT_COLORS[resultado]}`}>
+      {RESULT_LABELS[resultado]}
+    </span>
+  )
 }
 
 function EmptyState({ text }: { text: string }) {
