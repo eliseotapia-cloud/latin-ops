@@ -3,7 +3,6 @@ import {
   User, Briefcase, FileText, DollarSign, GraduationCap,
   CheckCircle, Clock, Download, ExternalLink, ChevronDown, ChevronUp,
 } from 'lucide-react'
-import { useRole } from '../../hooks/useRole'
 
 // ─── Datos demo del manager (Eliseo Tapia) ────────────────────────────────────
 
@@ -53,7 +52,6 @@ const DEMO_FORMACION = [
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function MiLegajoPage() {
-  const { user } = useRole()
   const [openSection, setOpenSection] = useState<string | null>('laboral')
 
   const toggleSection = (id: string) =>

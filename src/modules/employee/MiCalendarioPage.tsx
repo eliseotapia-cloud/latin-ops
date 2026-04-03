@@ -55,7 +55,7 @@ interface LocalLeave {
 
 export function MiCalendarioPage() {
   const demo = useDemoData()
-  const { empleadoId, user } = useRole()
+  const { empleadoId } = useRole()
   const [viewYear, setViewYear] = useState(2026)
   const [viewMonth, setViewMonth] = useState(3)
   const [showForm, setShowForm] = useState(false)
@@ -113,11 +113,6 @@ export function MiCalendarioPage() {
     return myLeaves.filter((l) => dateInRange(dateStr, l.fecha_inicio, l.fecha_fin))
   }
 
-  function isBirthdayDay(day: number) {
-    const monthDay = `${String(viewMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return teamBirthdays.filter((b) => `${String(b.day).padStart(2, '0')}` === String(day).padStart(2, '0') && b.day === day)
-  }
-
   function handleSubmit() {
     if (!formInicio || !formFin) return
     const newLeave: LocalLeave = {
@@ -144,7 +139,6 @@ export function MiCalendarioPage() {
   const monthEnd = isoToStr(viewYear, viewMonth, daysInMonth)
   const myMonthLeaves = myLeaves.filter((l) => l.fecha_inicio <= monthEnd && l.fecha_fin >= monthStart)
 
-  const nombre = user?.nombre?.split(' ')[0] ?? ''
 
   return (
     <div className="p-6 max-w-4xl">

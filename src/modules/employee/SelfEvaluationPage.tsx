@@ -121,27 +121,28 @@ export function SelfEvaluationPage() {
 
         {/* Motivación */}
         {selfEval.motivacion != null && (
-          <div className="card mb-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-400 mb-1">Nivel de motivación</p>
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <span key={n} className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border ${
-                    n === selfEval.motivacion
-                      ? 'bg-sky-500/20 border-sky-500/50 text-sky-300'
-                      : n < selfEval.motivacion!
-                      ? 'bg-sky-500/10 border-sky-500/20 text-sky-500'
-                      : 'bg-white/4 border-white/10 text-slate-600'
-                  }`}>{n}</span>
-                ))}
+          <div className="card mb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-400 mb-1">Nivel de motivación</p>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <span key={n} className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border ${
+                      n === selfEval.motivacion
+                        ? 'bg-sky-500/20 border-sky-500/50 text-sky-300'
+                        : n < selfEval.motivacion!
+                        ? 'bg-sky-500/10 border-sky-500/20 text-sky-500'
+                        : 'bg-white/4 border-white/10 text-slate-600'
+                    }`}>{n}</span>
+                  ))}
+                </div>
               </div>
+              <span className="text-2xl font-bold text-sky-400">{selfEval.motivacion}<span className="text-slate-500 text-sm font-normal"> / 5</span></span>
             </div>
-            <span className="text-2xl font-bold text-sky-400">{selfEval.motivacion}<span className="text-slate-500 text-sm font-normal"> / 5</span></span>
+            {selfEval.motivacion_comentario && (
+              <p className="text-xs text-slate-400 mt-3 italic">"{selfEval.motivacion_comentario}"</p>
+            )}
           </div>
-          {selfEval.motivacion_comentario && (
-            <p className="text-xs text-slate-400 mt-3 italic">"{selfEval.motivacion_comentario}"</p>
-          )}
-        </div>
         )}
 
         {/* Self-eval narrative */}
