@@ -214,6 +214,41 @@ export interface Leave {
 
 // ─── Comunicaciones ────────────────────────────────────────────────────────
 
+// ─── Onboarding ───────────────────────────────────────────────────────────
+
+export type OnboardingItemTipo = 'documento' | 'video' | 'formulario' | 'presentacion' | 'tarea'
+export type OnboardingEstado = 'pendiente' | 'en_progreso' | 'completado'
+
+export interface OnboardingItem {
+  id: string
+  titulo: string
+  descripcion: string
+  tipo: OnboardingItemTipo
+  url: string | null
+  orden: number
+}
+
+export interface OnboardingAsignacion {
+  id: string
+  empleado_id: string
+  empleado_nombre: string
+  empleado_area: string
+  fecha_ingreso: string
+  items: OnboardingItemProgreso[]
+  fecha_asignacion: string
+}
+
+export interface OnboardingItemProgreso {
+  item_id: string
+  titulo: string
+  descripcion: string
+  tipo: OnboardingItemTipo
+  url: string | null
+  orden: number
+  estado: OnboardingEstado
+  fecha_completado: string | null
+}
+
 export type ComunicacionTipo = 'pago' | 'evaluacion' | 'general'
 
 export interface Comunicacion {

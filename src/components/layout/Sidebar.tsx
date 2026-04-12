@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, DollarSign, BarChart2,
   FileText, Settings, LogOut, Briefcase, Link,
-  Lightbulb, Bell, CalendarDays, Presentation, Home,
+  Lightbulb, Bell, CalendarDays, Presentation, Home, UserPlus,
 } from 'lucide-react'
 import { useRole } from '../../hooks/useRole'
 import { useAuthStore } from '../../store/authStore'
@@ -18,6 +18,7 @@ export function Sidebar() {
     { to: '/comunicaciones', icon: Bell, label: 'Comunicaciones' },
     { to: '/performance', icon: BarChart2, label: 'Performance' },
     { to: '/calendario', icon: CalendarDays, label: 'Calendario' },
+    { to: '/onboarding', icon: UserPlus, label: 'Onboarding' },
     { to: '/sugerencias', icon: Lightbulb, label: 'Sugerencias' },
     { to: '/reportes', icon: FileText, label: 'Reportes' },
     { to: '/configuracion', icon: Settings, label: 'Configuración' },
@@ -34,6 +35,7 @@ export function Sidebar() {
 
   const employeeLinks = [
     { to: '/', icon: Home, label: 'Home' },
+    { to: '/mi-onboarding', icon: UserPlus, label: 'Mi Onboarding' },
     { to: '/mi-sueldo', icon: DollarSign, label: 'Sueldo' },
     { to: '/mi-evaluacion', icon: BarChart2, label: 'Mi Evaluación' },
     { to: '/mi-calendario', icon: CalendarDays, label: 'Calendario' },

@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 import type {
   Employee, Area, AreaCostSummary, Evaluation, Salary, SelfEvaluation,
-  Wellbeing, Suggestion, Leave, Comunicacion,
+  Wellbeing, Suggestion, Leave, Comunicacion, OnboardingItem, OnboardingAsignacion,
 } from '../types'
 import { calcResult } from '../types'
 
@@ -379,6 +379,56 @@ export const DEMO_COMUNICACIONES: Comunicacion[] = [
   },
 ]
 
+// ─── Onboarding ───────────────────────────────────────────────────────────
+
+export const DEMO_ONBOARDING_ITEMS: OnboardingItem[] = [
+  { id: 'ob-item-001', titulo: 'Presentación institucional Latin Securities', descripcion: 'Conocé la historia, misión, visión y valores de Latin Securities.', tipo: 'presentacion', url: 'https://docs.google.com/presentation/d/example', orden: 1 },
+  { id: 'ob-item-002', titulo: 'Código de Ética y Conducta', descripcion: 'Lectura obligatoria del código de ética corporativo.', tipo: 'documento', url: 'https://drive.google.com/file/d/etica-example', orden: 2 },
+  { id: 'ob-item-003', titulo: 'Políticas de Compliance', descripcion: 'Revisá las políticas de compliance y prevención de lavado de activos.', tipo: 'documento', url: 'https://drive.google.com/file/d/compliance-example', orden: 3 },
+  { id: 'ob-item-004', titulo: 'Video: Cultura y equipo Latin', descripcion: 'Video introductorio sobre la cultura del equipo y formas de trabajo.', tipo: 'video', url: 'https://vimeo.com/example', orden: 4 },
+  { id: 'ob-item-005', titulo: 'Formulario de datos personales', descripcion: 'Completá tus datos personales, contacto de emergencia y datos bancarios.', tipo: 'formulario', url: 'https://forms.google.com/example', orden: 5 },
+  { id: 'ob-item-006', titulo: 'Configurar accesos y herramientas', descripcion: 'Configurá tu email corporativo, acceso a sistemas y herramientas de trabajo.', tipo: 'tarea', url: null, orden: 6 },
+]
+
+export const DEMO_ONBOARDING_ASIGNACIONES: OnboardingAsignacion[] = [
+  {
+    id: 'ob-asig-001',
+    empleado_id: 'demo-emp-005',
+    empleado_nombre: 'Nicolás Paz',
+    empleado_area: 'Banca Privada',
+    fecha_ingreso: '2024-01-08',
+    fecha_asignacion: '2024-01-08',
+    items: DEMO_ONBOARDING_ITEMS.map((item) => ({
+      item_id: item.id,
+      titulo: item.titulo,
+      descripcion: item.descripcion,
+      tipo: item.tipo,
+      url: item.url,
+      orden: item.orden,
+      estado: 'completado' as const,
+      fecha_completado: '2024-01-15',
+    })),
+  },
+  {
+    id: 'ob-asig-002',
+    empleado_id: 'demo-emp-001',
+    empleado_nombre: 'Pablo Rodríguez',
+    empleado_area: 'Banca Privada',
+    fecha_ingreso: '2021-03-15',
+    fecha_asignacion: '2026-04-10',
+    items: DEMO_ONBOARDING_ITEMS.map((item, i) => ({
+      item_id: item.id,
+      titulo: item.titulo,
+      descripcion: item.descripcion,
+      tipo: item.tipo,
+      url: item.url,
+      orden: item.orden,
+      estado: i < 2 ? 'completado' as const : i === 2 ? 'en_progreso' as const : 'pendiente' as const,
+      fecha_completado: i < 2 ? '2026-04-11' : null,
+    })),
+  },
+]
+
 // ─── Contexto ──────────────────────────────────────────────────────────────
 
 export interface DemoContextValue {
@@ -395,6 +445,8 @@ export interface DemoContextValue {
   suggestions: Suggestion[]
   leaves: Leave[]
   comunicaciones: Comunicacion[]
+  onboardingItems: OnboardingItem[]
+  onboardingAsignaciones: OnboardingAsignacion[]
 }
 
 export const DemoContext = createContext<DemoContextValue | null>(null)

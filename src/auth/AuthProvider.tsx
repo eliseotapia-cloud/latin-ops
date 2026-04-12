@@ -6,6 +6,7 @@ import {
   DEMO_EMPLOYEES, DEMO_ALL_EMPLOYEES, DEMO_JEFES, DEMO_AREAS, DEMO_EVALUATIONS, DEMO_ADMIN,
   DEMO_PABLO_SALARY_HISTORY, DEMO_PABLO_SELF_EVAL, DEMO_PABLO_WELLBEING, DEMO_SUGGESTIONS,
   DEMO_CURRENT_SALARIES, DEMO_LEAVES, DEMO_COMUNICACIONES,
+  DEMO_ONBOARDING_ITEMS, DEMO_ONBOARDING_ASIGNACIONES,
 } from '../demo/demoData'
 
 // AUTH MOCKEADO — reemplazar por Supabase Auth cuando se implemente login real
@@ -70,6 +71,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     suggestions: DEMO_SUGGESTIONS,
     leaves: DEMO_LEAVES,
     comunicaciones: DEMO_COMUNICACIONES,
+    onboardingItems: DEMO_ONBOARDING_ITEMS,
+    onboardingAsignaciones: DEMO_ONBOARDING_ASIGNACIONES,
   }
 
   const cfg = TOGGLE_CONFIG[roleIdx]

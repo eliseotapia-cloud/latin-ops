@@ -23,6 +23,8 @@ import { CalendarioPage } from './modules/calendario/CalendarioPage'
 import { CalendarioAdminPage } from './modules/calendario/CalendarioAdminPage'
 import { MiCalendarioPage } from './modules/employee/MiCalendarioPage'
 import { PresentacionesPage } from './modules/presentaciones/PresentacionesPage'
+import { OnboardingAdminPage } from './modules/onboarding/OnboardingAdminPage'
+import { OnboardingEmpleadoPage } from './modules/onboarding/OnboardingEmpleadoPage'
 import { useRole } from './hooks/useRole'
 
 function DashboardRouter() {
@@ -213,6 +215,26 @@ export default function App() {
               element={
                 <ProtectedRoute allowedRoles={['empleado']}>
                   <SelfEvaluationPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ADMIN: Onboarding management */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <OnboardingAdminPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* EMPLOYEE: Mi Onboarding */}
+            <Route
+              path="/mi-onboarding"
+              element={
+                <ProtectedRoute allowedRoles={['empleado']}>
+                  <OnboardingEmpleadoPage />
                 </ProtectedRoute>
               }
             />

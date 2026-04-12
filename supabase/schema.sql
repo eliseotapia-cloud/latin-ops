@@ -203,6 +203,85 @@ CREATE POLICY "evaluaciones_update" ON evaluaciones
     OR (evaluador_id = auth.uid() AND get_my_rol() = 'area_manager')
   );
 
+-- 6. ONBOARDING — Items de la plantilla
+CREATE TABLE onboarding_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  titulo text NOT NULL,
+  descripcion text NOT NULL,
+  tipo text NOT NULL CHECK (tipo IN ('documento', 'video', 'formulario', 'presentacion', 'tarea')),
+  url text,
+  orden integer NOT NULL DEFAULT 0,
+  activo boolean DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+
+-- 7. ONBOARDING — Asignaciones a empleados
+CREATE TABLE onboarding_asignaciones (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  empleado_id uuid NOT NULL REFERENCES empleados(id) ON DELETE CASCADE,
+  fecha_asignacion date NOT NULL DEFAULT CURRENT_DATE,
+  created_at timestamptz DEFAULT now()
+);
+
+-- 8. ONBOARDING — Progreso por item
+CREATE TABLE onboarding_progreso (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  asignacion_id uuid NOT NULL REFERENCES onboarding_asignaciones(id) ON DELETE CASCADE,
+  item_id uuid NOT NULL REFERENCES onboarding_items(id) ON DELETE CASCADE,
+  estado text NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'en_progreso', 'completado')),
+  fecha_completado date,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(asignacion_id, item_id)
+);
+
+ALTER TABLE onboarding_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE onboarding_asignaciones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE onboarding_progreso ENABLE ROW LEVEL SECURITY;
+
+-- ONBOARDING ITEMS: admin puede CRUD; todos pueden leer
+CREATE POLICY "onboarding_items_read" ON onboarding_items
+  FOR SELECT USING (true);
+
+CREATE POLICY "onboarding_items_admin" ON onboarding_items
+  FOR ALL USING (get_my_rol() = 'super_admin');
+
+-- ONBOARDING ASIGNACIONES: admin puede crear; empleado ve las suyas
+CREATE POLICY "onboarding_asig_read" ON onboarding_asignaciones
+  FOR SELECT USING (
+    get_my_rol() = 'super_admin'
+    OR empleado_id IN (
+      SELECT e.id FROM empleados e
+      JOIN usuarios u ON u.email = e.email_corporativo
+      WHERE u.id = auth.uid()
+    )
+  );
+
+CREATE POLICY "onboarding_asig_admin" ON onboarding_asignaciones
+  FOR INSERT WITH CHECK (get_my_rol() = 'super_admin');
+
+-- ONBOARDING PROGRESO: admin ve todo; empleado ve/actualiza el suyo
+CREATE POLICY "onboarding_progreso_read" ON onboarding_progreso
+  FOR SELECT USING (
+    get_my_rol() = 'super_admin'
+    OR asignacion_id IN (
+      SELECT oa.id FROM onboarding_asignaciones oa
+      JOIN empleados e ON e.id = oa.empleado_id
+      JOIN usuarios u ON u.email = e.email_corporativo
+      WHERE u.id = auth.uid()
+    )
+  );
+
+CREATE POLICY "onboarding_progreso_update" ON onboarding_progreso
+  FOR UPDATE USING (
+    get_my_rol() = 'super_admin'
+    OR asignacion_id IN (
+      SELECT oa.id FROM onboarding_asignaciones oa
+      JOIN empleados e ON e.id = oa.empleado_id
+      JOIN usuarios u ON u.email = e.email_corporativo
+      WHERE u.id = auth.uid()
+    )
+  );
+
 -- ============================================================
 -- DATOS INICIALES DE EJEMPLO
 -- ============================================================
