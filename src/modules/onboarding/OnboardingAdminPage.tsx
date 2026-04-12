@@ -88,7 +88,7 @@ export function OnboardingAdminPage() {
 
   function handleAsignar() {
     if (!selectedEmpleado) return
-    const emp = demo.allEmployees.find((e) => e.id === selectedEmpleado)
+    const emp = demo!.allEmployees.find((e) => e.id === selectedEmpleado)
     if (!emp) return
 
     const newAsig: OnboardingAsignacion = {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  CheckCircle, Clock, AlertCircle, ExternalLink, ChevronRight,
+  CheckCircle, Clock, AlertCircle, ExternalLink,
   FileText, Video, ClipboardList, Presentation, ListTodo, PartyPopper,
 } from 'lucide-react'
 import { useDemoData } from '../../demo/demoData'
@@ -60,7 +60,7 @@ export function OnboardingEmpleadoPage() {
   const allDone = pct === 100
 
   function markComplete(itemId: string) {
-    const current = localItems ?? asignacion.items
+    const current = localItems ?? asignacion!.items
     setLocalItems(
       current.map((i) =>
         i.item_id === itemId
@@ -71,7 +71,7 @@ export function OnboardingEmpleadoPage() {
   }
 
   function markInProgress(itemId: string) {
-    const current = localItems ?? asignacion.items
+    const current = localItems ?? asignacion!.items
     setLocalItems(
       current.map((i) =>
         i.item_id === itemId && i.estado === 'pendiente'
